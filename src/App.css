@@ -4,6 +4,7 @@
   /* background-color: #282c34;  */
   /* background-color: #eaa8d0;  */
   height: fit-content;
+  margin: 10px 1vw 10px 1vw;
 }
 
 .App-logo {
@@ -44,18 +45,23 @@
 
 .button-div{
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .elegance-button {
-  width: 33vw;
+  width: 90vw;
   min-width: 50px;
   max-width: 500px;
   min-height: 50pt;
   margin: 3pt;
+  font-size: x-large;
+  font-family:'Courier New', Courier, monospace;
+  font-weight: bold;
 }
 
 .data-grid-div {
   height: fit-content;
+  font-family: 'Courier New', Courier, monospace; 
 }

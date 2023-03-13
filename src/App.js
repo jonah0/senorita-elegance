@@ -109,7 +109,7 @@ function App() {
     {
       field: "notes",
       headerName: "Notes",
-      width: 200,
+      width: 500,
       editable: true,
     },
   ];
@@ -170,17 +170,35 @@ function App() {
 
   return (
     <div className="App">
-      Señorita Elegance 🪱
+      <p>Señorita Elegance 🪱</p>
       <div className="button-div">
-        <button className="elegance-button" onClick={() => addEntry(0)}>
+        <Button
+          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          className="elegance-button"
+          variant="contained"
+          disableElevation
+          onClick={() => addEntry(0)}
+        >
           0
-        </button>
-        <button className="elegance-button" onClick={() => addEntry(1)}>
+        </Button>
+        <Button
+          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          className="elegance-button"
+          variant="contained"
+          disableElevation
+          onClick={() => addEntry(1)}
+        >
           1
-        </button>
-        <button className="elegance-button" onClick={() => addEntry(2)}>
+        </Button>
+        <Button
+          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          className="elegance-button"
+          variant="contained"
+          disableElevation
+          onClick={() => addEntry(2)}
+        >
           2
-        </button>
+        </Button>
       </div>
       <div style={{ margin: "5px", textAlign: "left" }}>
         <FormControl>
@@ -195,19 +213,19 @@ function App() {
       <div className="data-grid-div">
         <DataGrid
           apiRef={apiRef}
+          rows={rows}
+          columns={columns}
+          slots={{ toolbar: CustomToolbar }}
           initialState={{
             sorting: {
               sortModel: [{ field: "timestamp", sort: "desc" }],
             },
           }}
-          slots={{ toolbar: CustomToolbar }}
           sx={{
             height: "100%",
             fontFamily: "inherit",
             fontWeight: "inherit",
           }}
-          rows={rows}
-          columns={columns}
           onRowSelectionModelChange={(ids) => {
             setSelectionModel(ids);
           }}
@@ -215,11 +233,11 @@ function App() {
           disableRowSelectionOnClick
           autoHeight
           density="compact"
-          onCellEditStop={(params, events) => {
-            let { id, field } = params;
-            let updatedRow = apiRef.current.getRowWithUpdatedValues(id, field);
-            rowMap.set(id, updatedRow);
+          editMode="cell"
+          processRowUpdate={(newRow, oldRow) => {
+            rowMap.set(newRow.id, newRow);
             setRowMap(new Map(rowMap));
+            return newRow;
           }}
         />
       </div>

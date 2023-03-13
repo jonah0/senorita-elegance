@@ -33,6 +33,7 @@ function App() {
     const initialValue = JSON.parse(saved);
     return initialValue || [];
   });
+  console.log({ rows });
 
   let [gene, setGene] = useState("");
   const [selectionModel, setSelectionModel] = useState([]);
@@ -47,7 +48,7 @@ function App() {
       id: counter,
       phenotype,
       gene,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     };
     setCounter(counter + 1);
     setRows([...rows, entry]);
@@ -78,16 +79,26 @@ function App() {
     {
       field: "timestamp",
       headerName: "Timestamp",
-      type: "date",
-      valueFormatter: (params) => {
-        if (isValid(params.value)) {
-          return format(params.value, "HH:mm:ss yyyy-MM-dd");
+      width: 200,
+
+      // type: "date",
+      // valueFormatter: (params) => {
+      //   if (isValid(params.value)) {
+      //     return format(params.value, "HH:mm:ss yyyy-MM-dd");
+      //   } else {
+      //     let dateobj = parseISO(params.value);
+      //     return format(dateobj, "HH:mm:ss yyyy-MM-dd");
+      //   }
+      // },
+
+      renderCell: ({ value }) => {
+        if (isValid(value)) {
+          return format(value, "HH:mm:ss yyyy-MM-dd");
         } else {
-          let dateobj = parseISO(params.value);
+          let dateobj = parseISO(value);
           return format(dateobj, "HH:mm:ss yyyy-MM-dd");
         }
       },
-      width: 200,
     },
     {
       field: "notes",
@@ -103,17 +114,29 @@ function App() {
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
         <GridToolbarDensitySelector />
-        <GridToolbarExport />
+        <GridToolbarExport
+          csvOptions={{
+            allColumns: true,
+            fileName: `${new Date().toISOString()}_${
+              rows.length
+            }_rows_senorita_elegance`,
+          }}
+        />
         <Button
+          disabled={selectionModel.length === 0}
           onClick={() => {
-            console.log("delete clicked!");
             const selectedIDs = new Set(selectionModel);
             setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
           }}
         >
-          Delete
+          Delete {selectionModel.length} Rows
         </Button>
-        <Button onClick={(e) => setAlertOpen(true)}>CLEAR ALL</Button>
+        <Button
+          disabled={rows.length === 0}
+          onClick={(e) => setAlertOpen(true)}
+        >
+          CLEAR ALL
+        </Button>
       </GridToolbarContainer>
     );
   }
@@ -169,6 +192,7 @@ function App() {
           checkboxSelection
           disableRowSelectionOnClick
           autoHeight
+          density="compact"
         />
       </div>
       <div>
@@ -179,7 +203,7 @@ function App() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            Delete {rows.length} rows? 🪱🗑️😔
+            Delete {rows.length} Rows? 🪱🗑️
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

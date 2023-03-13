@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { default as clipboardCopy } from "clipboard-copy";
 import "./App.css";
 import {
   DataGrid,
@@ -132,7 +133,7 @@ function App() {
           onClick={() => {
             let csvString = apiRef.current.getDataAsCsv();
             console.log(csvString);
-            navigator.clipboard.writeText(csvString);
+            clipboardCopy(csvString);
           }}
         >
           Copy As CSV

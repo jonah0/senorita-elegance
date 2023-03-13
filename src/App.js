@@ -1,21 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import {
   DataGrid,
-  GridToolbar,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridToolbarExport,
 } from "@mui/x-data-grid";
-import { format } from "date-fns";
-import { TextField, FormControl, Button } from "@mui/material";
+import { format, isValid, parseISO } from "date-fns";
+import {
+  TextField,
+  FormControl,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+} from "@mui/material";
 
 function App() {
-  let [counter, setCounter] = useState(0);
-  let [rows, setRows] = useState([]);
+  let [counter, setCounter] = useState(() => {
+    // getting stored value
+    const saved = localStorage.getItem("senorita-elegance-id-counter");
+    return parseInt(saved) || 0;
+  });
+
+  let [rows, setRows] = useState(() => {
+    // getting stored value
+    const saved = localStorage.getItem("senorita-elegance-rows");
+    const initialValue = JSON.parse(saved);
+    return initialValue || [];
+  });
+
   let [gene, setGene] = useState("");
+  const [selectionModel, setSelectionModel] = useState([]);
+  let [alertOpen, setAlertOpen] = useState(false);
 
   /**
    *
@@ -32,6 +53,14 @@ function App() {
     setRows([...rows, entry]);
   }
 
+  useEffect(() => {
+    localStorage.setItem("senorita-elegance-rows", JSON.stringify(rows));
+  }, [rows]);
+
+  useEffect(() => {
+    localStorage.setItem("senorita-elegance-id-counter", counter);
+  }, [counter]);
+
   const columns = [
     {
       field: "phenotype",
@@ -43,14 +72,21 @@ function App() {
     {
       field: "gene",
       headerName: "Gene",
-      width: 200,
+      width: 175,
       editable: true,
     },
     {
       field: "timestamp",
       headerName: "Timestamp",
       type: "date",
-      valueFormatter: (params) => format(params.value, "HH:mm:ss yyyy-MM-dd"),
+      valueFormatter: (params) => {
+        if (isValid(params.value)) {
+          return format(params.value, "HH:mm:ss yyyy-MM-dd");
+        } else {
+          let dateobj = parseISO(params.value);
+          return format(dateobj, "HH:mm:ss yyyy-MM-dd");
+        }
+      },
       width: 200,
     },
     {
@@ -58,15 +94,6 @@ function App() {
       headerName: "Notes",
       width: 200,
       editable: true,
-    },
-    {
-      field: "delete",
-      width: 75,
-      sortable: false,
-      disableColumnMenu: true,
-      renderHeader: () => {
-        return <button>test button</button>;
-      },
     },
   ];
 
@@ -77,9 +104,28 @@ function App() {
         <GridToolbarFilterButton />
         <GridToolbarDensitySelector />
         <GridToolbarExport />
-        <Button>Delete</Button>
+        <Button
+          onClick={() => {
+            console.log("delete clicked!");
+            const selectedIDs = new Set(selectionModel);
+            setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
+          }}
+        >
+          Delete
+        </Button>
+        <Button onClick={(e) => setAlertOpen(true)}>CLEAR ALL</Button>
       </GridToolbarContainer>
     );
+  }
+
+  function handleCloseDialog(e) {
+    setAlertOpen(false);
+  }
+
+  function clearAllData(e) {
+    setRows([]);
+    setCounter(0);
+    handleCloseDialog();
   }
 
   return (
@@ -117,10 +163,37 @@ function App() {
           sx={{ height: "100%", fontFamily: "courier" }}
           rows={rows}
           columns={columns}
+          onRowSelectionModelChange={(ids) => {
+            setSelectionModel(ids);
+          }}
           checkboxSelection
           disableRowSelectionOnClick
           autoHeight
         />
+      </div>
+      <div>
+        <Dialog
+          open={alertOpen}
+          onClose={() => setAlertOpen(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete {rows.length} rows? 🪱🗑️😔
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              This will clear all local Señorita Elegance data. This action is
+              irreversible.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={clearAllData} autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </div>
   );

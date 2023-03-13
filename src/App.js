@@ -5,8 +5,8 @@ import {
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
-  GridToolbarDensitySelector,
   GridToolbarExport,
+  useGridApiRef,
 } from "@mui/x-data-grid";
 import { format, isValid, parseISO } from "date-fns";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 
 function App() {
+  const apiRef = useGridApiRef();
   let [counter, setCounter] = useState(() => {
     // getting stored value
     const saved = localStorage.getItem("senorita-elegance-id-counter");
@@ -113,7 +114,6 @@ function App() {
       <GridToolbarContainer>
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
         <GridToolbarExport
           csvOptions={{
             allColumns: true,
@@ -122,6 +122,15 @@ function App() {
             }_rows_senorita_elegance`,
           }}
         />
+        <Button
+          onClick={() => {
+            let csvString = apiRef.current.getDataAsCsv();
+            console.log(csvString);
+            navigator.clipboard.writeText(csvString);
+          }}
+        >
+          Copy As CSV
+        </Button>
         <Button
           disabled={selectionModel.length === 0}
           onClick={() => {
@@ -177,13 +186,18 @@ function App() {
       </div>
       <div className="data-grid-div">
         <DataGrid
+          apiRef={apiRef}
           initialState={{
             sorting: {
               sortModel: [{ field: "timestamp", sort: "desc" }],
             },
           }}
           slots={{ toolbar: CustomToolbar }}
-          sx={{ height: "100%", fontFamily: "courier" }}
+          sx={{
+            height: "100%",
+            fontFamily: "inherit",
+            fontWeight: "inherit",
+          }}
           rows={rows}
           columns={columns}
           onRowSelectionModelChange={(ids) => {

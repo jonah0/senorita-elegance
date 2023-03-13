@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./App.css";
 import {
   DataGrid,
@@ -22,19 +22,23 @@ import {
 
 function App() {
   const apiRef = useGridApiRef();
+
   let [counter, setCounter] = useState(() => {
     // getting stored value
     const saved = localStorage.getItem("senorita-elegance-id-counter");
     return parseInt(saved) || 0;
   });
 
-  let [rows, setRows] = useState(() => {
+  let [rowMap, setRowMap] = useState(() => {
     // getting stored value
     const saved = localStorage.getItem("senorita-elegance-rows");
-    const initialValue = JSON.parse(saved);
-    return initialValue || [];
+    const initialValue = new Map(JSON.parse(saved));
+    return initialValue || new Map();
   });
-  console.log({ rows });
+
+  let rows = useMemo(() => {
+    return Array.from(rowMap, ([key, value]) => value);
+  }, [rowMap]);
 
   let [gene, setGene] = useState("");
   const [selectionModel, setSelectionModel] = useState([]);
@@ -51,13 +55,14 @@ function App() {
       gene,
       timestamp: new Date().toISOString(),
     };
+    rowMap.set(counter, entry);
+    setRowMap(new Map(rowMap)); // need shallow copy to trigger rerender
     setCounter(counter + 1);
-    setRows([...rows, entry]);
   }
 
   useEffect(() => {
-    localStorage.setItem("senorita-elegance-rows", JSON.stringify(rows));
-  }, [rows]);
+    localStorage.setItem("senorita-elegance-rows", JSON.stringify([...rowMap]));
+  }, [rowMap]);
 
   useEffect(() => {
     localStorage.setItem("senorita-elegance-id-counter", counter);
@@ -117,8 +122,9 @@ function App() {
         <GridToolbarExport
           csvOptions={{
             allColumns: true,
+            utf8WithBom: true,
             fileName: `${new Date().toISOString()}_${
-              rows.length
+              rowMap.size
             }_rows_senorita_elegance`,
           }}
         />
@@ -135,13 +141,15 @@ function App() {
           disabled={selectionModel.length === 0}
           onClick={() => {
             const selectedIDs = new Set(selectionModel);
-            setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
+            console.log({ selectedIDs });
+            selectedIDs.forEach((id) => rowMap.delete(id));
+            setRowMap(new Map(rowMap));
           }}
         >
           Delete {selectionModel.length} Rows
         </Button>
         <Button
-          disabled={rows.length === 0}
+          disabled={rowMap.size === 0}
           onClick={(e) => setAlertOpen(true)}
         >
           CLEAR ALL
@@ -155,7 +163,7 @@ function App() {
   }
 
   function clearAllData(e) {
-    setRows([]);
+    setRowMap(new Map());
     setCounter(0);
     handleCloseDialog();
   }
@@ -207,6 +215,12 @@ function App() {
           disableRowSelectionOnClick
           autoHeight
           density="compact"
+          onCellEditStop={(params, events) => {
+            let { id, field } = params;
+            let updatedRow = apiRef.current.getRowWithUpdatedValues(id, field);
+            rowMap.set(id, updatedRow);
+            setRowMap(new Map(rowMap));
+          }}
         />
       </div>
       <div>

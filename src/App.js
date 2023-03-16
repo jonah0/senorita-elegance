@@ -21,18 +21,26 @@ import {
   DialogContentText,
 } from "@mui/material";
 
+const LOCAL_STORAGE_ID_COUNTER = "spermatheca-logger-id-counter";
+const LOCAL_STORAGE_SPERMATHECA_ROWS = "spermatheca-logger-rows";
+
+const ZERO_COLOR = "#FA003F"; // real bright red
+// const ZERO_COLOR = "#EF476F"; // bright pink
+const ONE_COLOR = "#1976D2";
+const TWO_COLOR = "#FBAF00";
+
 function App() {
   const apiRef = useGridApiRef();
 
   let [counter, setCounter] = useState(() => {
     // getting stored value
-    const saved = localStorage.getItem("senorita-elegance-id-counter");
+    const saved = localStorage.getItem(LOCAL_STORAGE_ID_COUNTER);
     return parseInt(saved) || 0;
   });
 
   let [rowMap, setRowMap] = useState(() => {
     // getting stored value
-    const saved = localStorage.getItem("senorita-elegance-rows");
+    const saved = localStorage.getItem(LOCAL_STORAGE_SPERMATHECA_ROWS);
     const initialValue = new Map(JSON.parse(saved));
     return initialValue || new Map();
   });
@@ -62,11 +70,14 @@ function App() {
   }
 
   useEffect(() => {
-    localStorage.setItem("senorita-elegance-rows", JSON.stringify([...rowMap]));
+    localStorage.setItem(
+      LOCAL_STORAGE_SPERMATHECA_ROWS,
+      JSON.stringify([...rowMap])
+    );
   }, [rowMap]);
 
   useEffect(() => {
-    localStorage.setItem("senorita-elegance-id-counter", counter);
+    localStorage.setItem(LOCAL_STORAGE_ID_COUNTER, counter);
   }, [counter]);
 
   const columns = [
@@ -76,6 +87,24 @@ function App() {
       type: "number",
       width: 90,
       editable: true,
+      renderCell: ({ value }) => {
+        let color = "white";
+        if (value === 0) {
+          color = ZERO_COLOR;
+        } else if (value === 1) {
+          color = ONE_COLOR;
+        } else if (value === 2) {
+          color = TWO_COLOR;
+        }
+        return (
+          <div
+            className="phenotype-indicator-square"
+            style={{ backgroundColor: color }}
+          >
+            {value}
+          </div>
+        );
+      },
     },
     {
       field: "gene",
@@ -171,14 +200,14 @@ function App() {
 
   return (
     <div className="App">
-      <p>Señorita Elegance 🪱</p>
+      <p>🧬 Sᴘᴇʀᴍᴀᴛʜᴇᴄᴀ Cᴏᴜɴᴛᴇʀ 🧬</p>
       <div className="button-div">
         <Button
           style={{
             margin: "3pt",
             fontSize: "x-large",
             fontFamily: "courier",
-            backgroundColor: "#DB5461",
+            backgroundColor: ZERO_COLOR,
           }}
           className="elegance-button"
           variant="contained"
@@ -192,7 +221,7 @@ function App() {
             margin: "3pt",
             fontSize: "x-large",
             fontFamily: "courier",
-            backgroundColor: "#007CBE",
+            backgroundColor: ONE_COLOR,
           }}
           className="elegance-button"
           variant="contained"
@@ -206,7 +235,7 @@ function App() {
             margin: "3pt",
             fontSize: "x-large",
             fontFamily: "courier",
-            backgroundColor: "#FBAF00",
+            backgroundColor: TWO_COLOR,
           }}
           className="elegance-button"
           variant="contained"
@@ -269,7 +298,7 @@ function App() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              This will clear all local Señorita Elegance data. This action is
+              This will clear all local spermatheca data. This action is
               irreversible.
             </DialogContentText>
           </DialogContent>

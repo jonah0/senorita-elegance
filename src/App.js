@@ -44,9 +44,38 @@ function App() {
     },
   ]); // Set rowData to Array of Objects, one Object per Row
 
+  function phenotypeColRenderer({ value }) {
+    let color = "white";
+    if (value === 0) {
+      color = ZERO_COLOR;
+    } else if (value === 1) {
+      color = ONE_COLOR;
+    } else if (value === 2) {
+      color = TWO_COLOR;
+    }
+    return (
+      <div
+        className="flexify-indicator"
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <div
+          className="phenotype-indicator-square"
+          style={{ backgroundColor: color }}
+        >
+          {value}
+        </div>
+      </div>
+    );
+  }
+
   // Each Column Definition results in one Column.
   const [columnDefs, setColumnDefs] = useState([
-    { field: "phenotype", filter: true },
+    { field: "phenotype", filter: true, cellRenderer: phenotypeColRenderer },
     { field: "gene", filter: true },
     { field: "timestamp", filter: true },
     { field: "notes", filter: true },

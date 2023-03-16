@@ -45,10 +45,13 @@ body,
 }
 
 .phenotype-indicator-square {
+  display: flex;
   height: 1.5em;
   width: 1.5em;
   border-radius: 25%;
-  color: white;
+  color: white; /* text color */
   text-align: center;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
 }

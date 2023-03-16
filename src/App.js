@@ -1,6 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { default as clipboardCopy } from "clipboard-copy";
 import "./App.css";
+import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
+import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
+
+import { AgGridReact } from "ag-grid-react";
 import {
   DataGrid,
   GridToolbarContainer,
@@ -30,6 +34,37 @@ const ONE_COLOR = "#1976D2";
 const TWO_COLOR = "#FBAF00";
 
 function App() {
+  const gridRef = useRef(); // for accessing grid's api
+  const [rowData, setRowData] = useState([
+    {
+      phenotype: 0,
+      gene: "TAGATAGA",
+      timestamp: new Date(),
+      notes: "Test note",
+    },
+  ]); // Set rowData to Array of Objects, one Object per Row
+
+  // Each Column Definition results in one Column.
+  const [columnDefs, setColumnDefs] = useState([
+    { field: "phenotype", filter: true },
+    { field: "gene", filter: true },
+    { field: "timestamp", filter: true },
+    { field: "notes", filter: true },
+  ]);
+
+  // DefaultColDef sets props common to all Columns
+  const defaultColDef = useMemo(
+    () => ({
+      sortable: true,
+    }),
+    []
+  );
+
+  // Example of consuming Grid Event
+  const cellClickedListener = useCallback((event) => {
+    console.log("cellClicked", event);
+  }, []);
+
   const apiRef = useGridApiRef();
 
   let [counter, setCounter] = useState(() => {
@@ -209,8 +244,8 @@ function App() {
 
   return (
     <div className="App">
-      <p>🧬 Sᴘᴇʀᴍᴀᴛʜᴇᴄᴀ Cᴏᴜɴᴛᴇʀ 🧬</p>
-      <div className="button-div">
+      🧬 Sᴘᴇʀᴍᴀᴛʜᴇᴄᴀ Cᴏᴜɴᴛᴇʀ 🧬
+      <div className="button-div" style={{ height: "fit-content" }}>
         <Button
           style={{
             margin: "3pt",
@@ -254,94 +289,68 @@ function App() {
           2
         </Button>
       </div>
-      <div style={{ margin: "5px", textAlign: "left" }}>
-        <FormControl>
-          <TextField
-            variant="standard"
-            label="Gene"
-            value={gene}
-            onChange={(e) => setGene(e.target.value)}
-          ></TextField>
-        </FormControl>
-      </div>
-      <div className="data-grid-div">
-        <DataGrid
-          apiRef={apiRef}
-          rows={rows}
-          columns={columns}
-          slots={{ toolbar: CustomToolbar }}
-          initialState={{
-            sorting: {
-              sortModel: [{ field: "timestamp", sort: "desc" }],
-            },
-          }}
-          sx={{
-            height: "100%",
-            fontFamily: "inherit",
-            fontWeight: "inherit",
-          }}
-          onRowSelectionModelChange={(ids) => {
-            setSelectionModel(ids);
-          }}
-          checkboxSelection
-          disableRowSelectionOnClick
-          autoHeight
-          density="compact"
-          editMode="cell"
-          processRowUpdate={(newRow, oldRow) => {
-            rowMap.set(newRow.id, newRow);
-            setRowMap(new Map(rowMap));
-            return newRow;
-          }}
+      <FormControl sx={{ margin: "5px", width: "200px" }}>
+        <TextField
+          variant="standard"
+          label="Gene"
+          value={gene}
+          onChange={(e) => setGene(e.target.value)}
+        ></TextField>
+      </FormControl>
+      <div className="grid-wrapper ag-theme-alpine">
+        <AgGridReact
+          ref={gridRef} // Ref for accessing Grid's API
+          rowData={rowData} // Row Data for Rows
+          columnDefs={columnDefs} // Column Defs for Columns
+          defaultColDef={defaultColDef} // Default Column Properties
+          animateRows={true} // Optional - set to 'true' to have rows animate when sorted
+          rowSelection="multiple" // Options - allows click selection of rows
+          onCellClicked={cellClickedListener} // Optional - registering for Grid Event
         />
       </div>
-      <div>
-        <Dialog
-          open={alertOpen}
-          onClose={() => setAlertOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            Delete {rows.length} Rows? 🪱🗑️
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              This will clear all local spermatheca data. This action is
-              irreversible.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={clearAllData} autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-      <div>
-        <Dialog
-          open={deleteSelectionDialogOpen}
-          onClose={() => setDeleteSelectionDialogOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            Delete {selectionModel.length} Rows? 🪱🗑️
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              This will clear the selected rows. This action is irreversible.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDeleteSelectionDialog}>Cancel</Button>
-            <Button onClick={clearSelectedData} autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
+      <Dialog
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Delete {rows.length} Rows? 🪱🗑️
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This will clear all local spermatheca data. This action is
+            irreversible.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={clearAllData} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={deleteSelectionDialogOpen}
+        onClose={() => setDeleteSelectionDialogOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Delete {selectionModel.length} Rows? 🪱🗑️
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This will clear the selected rows. This action is irreversible.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteSelectionDialog}>Cancel</Button>
+          <Button onClick={clearSelectedData} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

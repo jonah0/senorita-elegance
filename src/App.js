@@ -174,7 +174,12 @@ function App() {
       <p>Señorita Elegance 🪱</p>
       <div className="button-div">
         <Button
-          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          style={{
+            margin: "3pt",
+            fontSize: "x-large",
+            fontFamily: "courier",
+            backgroundColor: "#DB5461",
+          }}
           className="elegance-button"
           variant="contained"
           disableElevation
@@ -183,7 +188,12 @@ function App() {
           0
         </Button>
         <Button
-          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          style={{
+            margin: "3pt",
+            fontSize: "x-large",
+            fontFamily: "courier",
+            backgroundColor: "#007CBE",
+          }}
           className="elegance-button"
           variant="contained"
           disableElevation
@@ -192,7 +202,12 @@ function App() {
           1
         </Button>
         <Button
-          style={{ margin: "3pt", fontSize: "x-large", fontFamily: "courier" }}
+          style={{
+            margin: "3pt",
+            fontSize: "x-large",
+            fontFamily: "courier",
+            backgroundColor: "#FBAF00",
+          }}
           className="elegance-button"
           variant="contained"
           disableElevation

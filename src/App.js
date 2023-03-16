@@ -52,6 +52,8 @@ function App() {
   let [gene, setGene] = useState("");
   const [selectionModel, setSelectionModel] = useState([]);
   let [alertOpen, setAlertOpen] = useState(false);
+  let [deleteSelectionDialogOpen, setDeleteSelectionDialogOpen] =
+    useState(false);
 
   /**
    *
@@ -169,12 +171,7 @@ function App() {
         </Button>
         <Button
           disabled={selectionModel.length === 0}
-          onClick={() => {
-            const selectedIDs = new Set(selectionModel);
-            console.log({ selectedIDs });
-            selectedIDs.forEach((id) => rowMap.delete(id));
-            setRowMap(new Map(rowMap));
-          }}
+          onClick={(e) => setDeleteSelectionDialogOpen(true)}
         >
           Delete {selectionModel.length} Rows
         </Button>
@@ -188,8 +185,20 @@ function App() {
     );
   }
 
+  function handleCloseDeleteSelectionDialog(e) {
+    setDeleteSelectionDialogOpen(false);
+  }
+
   function handleCloseDialog(e) {
     setAlertOpen(false);
+  }
+
+  function clearSelectedData(e) {
+    const selectedIDs = new Set(selectionModel);
+    console.log({ selectedIDs });
+    selectedIDs.forEach((id) => rowMap.delete(id));
+    setRowMap(new Map(rowMap));
+    handleCloseDeleteSelectionDialog();
   }
 
   function clearAllData(e) {
@@ -305,6 +314,29 @@ function App() {
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancel</Button>
             <Button onClick={clearAllData} autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+      <div>
+        <Dialog
+          open={deleteSelectionDialogOpen}
+          onClose={() => setDeleteSelectionDialogOpen(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete {selectionModel.length} Rows? 🪱🗑️
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              This will clear the selected rows. This action is irreversible.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteSelectionDialog}>Cancel</Button>
+            <Button onClick={clearSelectedData} autoFocus>
               Delete
             </Button>
           </DialogActions>

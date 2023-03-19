@@ -214,7 +214,6 @@ function App() {
 
   function clearSelectedData(e) {
     const selectedIDs = new Set(selectionModel);
-    console.log({ selectedIDs });
     selectedIDs.forEach((id) => rowMap.delete(id));
     setRowMap(new Map(rowMap));
     handleCloseDeleteSelectionDialog();

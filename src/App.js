@@ -146,18 +146,36 @@ function App() {
     },
   ];
 
+  function csvFileName() {
+    return `${new Date().toISOString()}_${rowMap.size}_rows_senorita_elegance`;
+  }
+
+  async function handleShare(e) {
+    console.log("Sharing CSV...");
+    let csvString = apiRef.current.getDataAsCsv();
+
+    const file = new File([csvString], csvFileName() + ".csv", {
+      type: "text/csv",
+    });
+
+    try {
+      await navigator.share({ files: [file] });
+      console.log("CSV shared successfully");
+    } catch (err) {
+      console.log(`Error: ${err}`);
+    }
+  }
+
   function CustomToolbar() {
     return (
       <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
+        {/* <GridToolbarColumnsButton /> */}
+        {/* <GridToolbarFilterButton /> */}
         <GridToolbarExport
           csvOptions={{
             allColumns: true,
-            utf8WithBom: true,
-            fileName: `${new Date().toISOString()}_${
-              rowMap.size
-            }_rows_senorita_elegance`,
+            utf8WithBom: false,
+            fileName: csvFileName(),
           }}
         />
         <Button
@@ -169,6 +187,7 @@ function App() {
         >
           Copy As CSV
         </Button>
+        <Button onClick={handleShare}>Share...</Button>
         <Button
           disabled={selectionModel.length === 0}
           onClick={(e) => setDeleteSelectionDialogOpen(true)}
@@ -195,7 +214,6 @@ function App() {
 
   function clearSelectedData(e) {
     const selectedIDs = new Set(selectionModel);
-    console.log({ selectedIDs });
     selectedIDs.forEach((id) => rowMap.delete(id));
     setRowMap(new Map(rowMap));
     handleCloseDeleteSelectionDialog();

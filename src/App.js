@@ -42,16 +42,34 @@ function App() {
       timestamp: new Date(),
       notes: "Test note",
     },
+    {
+      phenotype: 1,
+      gene: "TAGATAGA",
+      timestamp: new Date(),
+      notes: "Test note",
+    },
+    {
+      phenotype: 2,
+      gene: "TAGATAGA",
+      timestamp: new Date(),
+      notes: "Test note",
+    },
+    {
+      phenotype: 3,
+      gene: "TAGATAGA",
+      timestamp: new Date(),
+      notes: "Test note",
+    },
   ]); // Set rowData to Array of Objects, one Object per Row
 
   function phenotypeColRenderer({ value }) {
-    let color = "white";
+    let backgroundColor = "black";
     if (value === 0) {
-      color = ZERO_COLOR;
+      backgroundColor = ZERO_COLOR;
     } else if (value === 1) {
-      color = ONE_COLOR;
+      backgroundColor = ONE_COLOR;
     } else if (value === 2) {
-      color = TWO_COLOR;
+      backgroundColor = TWO_COLOR;
     }
     return (
       <div
@@ -63,10 +81,7 @@ function App() {
           alignItems: "center",
         }}
       >
-        <div
-          className="phenotype-indicator-square"
-          style={{ backgroundColor: color }}
-        >
+        <div className="phenotype-indicator-square" style={{ backgroundColor }}>
           {value}
         </div>
       </div>

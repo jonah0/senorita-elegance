@@ -153,13 +153,14 @@ function App() {
   async function handleShare(e) {
     console.log("Sharing CSV...");
     let csvString = apiRef.current.getDataAsCsv();
+    let filename = csvFileName() + ".csv";
 
-    const file = new File([csvString], csvFileName() + ".csv", {
+    const file = new File([csvString], filename, {
       type: "text/csv",
     });
 
     try {
-      await navigator.share({ files: [file] });
+      await navigator.share({ title: filename, files: [file] });
       console.log("CSV shared successfully");
     } catch (err) {
       console.log(`Error: ${err}`);

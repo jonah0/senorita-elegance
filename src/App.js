@@ -1,29 +1,30 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { default as clipboardCopy } from "clipboard-copy";
-import "./App.css";
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
+import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
+import { default as clipboardCopy } from "clipboard-copy";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./App.css";
 
 import { AgGridReact } from "ag-grid-react";
+
 import {
-  DataGrid,
-  GridToolbarContainer,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  TextField,
+} from "@mui/material";
+import {
   GridToolbarColumnsButton,
-  GridToolbarFilterButton,
+  GridToolbarContainer,
   GridToolbarExport,
+  GridToolbarFilterButton,
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { format, isValid, parseISO } from "date-fns";
-import {
-  TextField,
-  FormControl,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
-} from "@mui/material";
 
 const LOCAL_STORAGE_ID_COUNTER = "spermatheca-logger-id-counter";
 const LOCAL_STORAGE_SPERMATHECA_ROWS = "spermatheca-logger-rows";
@@ -37,30 +38,34 @@ function App() {
   const gridRef = useRef(); // for accessing grid's api
   const [rowData, setRowData] = useState([
     {
+      id: 0,
       phenotype: 0,
       gene: "TAGATAGA",
       timestamp: new Date(),
-      notes: "Test note",
+      notes: "Test note 1",
     },
     {
+      id: 1,
       phenotype: 1,
       gene: "TAGATAGA",
       timestamp: new Date(),
-      notes: "Test note",
+      notes: "Test note 2",
     },
     {
+      id: 2,
       phenotype: 2,
       gene: "TAGATAGA",
       timestamp: new Date(),
-      notes: "Test note",
+      notes: "Test note 3",
     },
     {
+      id: 3,
       phenotype: 3,
       gene: "TAGATAGA",
       timestamp: new Date(),
-      notes: "Test note",
+      notes: "Test note 4",
     },
-  ]); // Set rowData to Array of Objects, one Object per Row
+  ]);
 
   function phenotypeColRenderer({ value }) {
     let backgroundColor = "black";
@@ -90,19 +95,44 @@ function App() {
 
   // Each Column Definition results in one Column.
   const [columnDefs, setColumnDefs] = useState([
-    { field: "phenotype", filter: true, cellRenderer: phenotypeColRenderer },
-    { field: "gene", filter: true },
-    { field: "timestamp", filter: true },
-    { field: "notes", filter: true },
+    {
+      field: "phenotype",
+      filter: true,
+      editable: true,
+      cellRenderer: phenotypeColRenderer,
+    },
+    {
+      field: "gene",
+      filter: true,
+      editable: true,
+    },
+    {
+      field: "timestamp",
+      filter: true,
+      initialSort: "desc",
+    },
+    {
+      field: "notes",
+      filter: true,
+      editable: true,
+    },
   ]);
 
   // DefaultColDef sets props common to all Columns
   const defaultColDef = useMemo(
     () => ({
       sortable: true,
+      filter: true,
+      flex: 1,
+      resizable: true,
     }),
     []
   );
+
+  function useApi(e) {
+    let output = gridRef.current.api;
+    console.log({ api: output });
+  }
 
   // Example of consuming Grid Event
   const cellClickedListener = useCallback((event) => {
@@ -341,15 +371,19 @@ function App() {
           onChange={(e) => setGene(e.target.value)}
         ></TextField>
       </FormControl>
-      <div className="grid-wrapper ag-theme-alpine">
+      {/* todo remove: */}
+      <button onClick={useApi}>Push Me</button>
+      <div className="grid-wrapper ag-theme-alpine-dark">
         <AgGridReact
           ref={gridRef} // Ref for accessing Grid's API
           rowData={rowData} // Row Data for Rows
           columnDefs={columnDefs} // Column Defs for Columns
+          getRowId={(params) => params.data.id}
           defaultColDef={defaultColDef} // Default Column Properties
           animateRows={true} // Optional - set to 'true' to have rows animate when sorted
           rowSelection="multiple" // Options - allows click selection of rows
           onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+          maintainColumnOrder
         />
       </div>
       <Dialog

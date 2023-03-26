@@ -194,14 +194,16 @@ function App() {
           disabled={selectionModel.length === 0}
           onClick={(e) => setDeleteSelectionDialogOpen(true)}
         >
-          Delete {selectionModel.length} Rows
+          {selectionModel.length < rowMap.size
+            ? `Delete ${selectionModel.length} Rows`
+            : `Clear All`}
         </Button>
-        <Button
+        {/* <Button
           disabled={rowMap.size === 0}
           onClick={(e) => setAlertOpen(true)}
         >
           CLEAR ALL
-        </Button>
+        </Button> */}
       </GridToolbarContainer>
     );
   }

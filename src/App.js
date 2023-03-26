@@ -170,6 +170,7 @@ function App() {
   function CustomToolbar() {
     return (
       <GridToolbarContainer>
+        <Button disabled>{rowMap.size} Rows</Button>
         {/* <GridToolbarColumnsButton /> */}
         {/* <GridToolbarFilterButton /> */}
         <GridToolbarExport

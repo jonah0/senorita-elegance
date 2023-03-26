@@ -20,6 +20,7 @@ import {
   DialogActions,
   DialogContentText,
 } from "@mui/material";
+import { maxWidth } from "@mui/system";
 
 const LOCAL_STORAGE_ID_COUNTER = "spermatheca-logger-id-counter";
 const LOCAL_STORAGE_SPERMATHECA_ROWS = "spermatheca-logger-rows";
@@ -275,17 +276,17 @@ function App() {
         >
           2
         </Button>
-      </div>
-      <div style={{ margin: "5px", textAlign: "left" }}>
-        <FormControl>
+
+        <FormControl className="elegance-button" style={{ marginTop: "10pt" }}>
           <TextField
-            variant="standard"
+            variant="outlined"
             label="Gene"
             value={gene}
             onChange={(e) => setGene(e.target.value)}
           ></TextField>
         </FormControl>
       </div>
+
       <div className="data-grid-div">
         <DataGrid
           apiRef={apiRef}

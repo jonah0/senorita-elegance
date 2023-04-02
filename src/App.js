@@ -195,16 +195,14 @@ function App() {
           disabled={selectionModel.length === 0}
           onClick={(e) => setDeleteSelectionDialogOpen(true)}
         >
-          {selectionModel.length < rowMap.size
-            ? `Delete ${selectionModel.length} Rows`
-            : `Clear All`}
+          Delete {selectionModel.length} Rows
         </Button>
-        {/* <Button
+        <Button
           disabled={rowMap.size === 0}
           onClick={(e) => setAlertOpen(true)}
         >
           CLEAR ALL
-        </Button> */}
+        </Button>
       </GridToolbarContainer>
     );
   }
@@ -326,7 +324,7 @@ function App() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            Delete {rows.length} Rows? 🪱🗑️
+            Delete all {rows.length} rows? 🪱🗑️
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
@@ -350,7 +348,9 @@ function App() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            Delete {selectionModel.length} Rows? 🪱🗑️
+            {selectionModel.length === rowMap.size
+              ? `Delete all ${selectionModel.length} rows? 🪱🗑️`
+              : `Delete ${selectionModel.length} rows? 🪱🗑️`}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

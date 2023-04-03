@@ -19,19 +19,46 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  ButtonGroup,
 } from "@mui/material";
-import { maxWidth } from "@mui/system";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const LOCAL_STORAGE_ID_COUNTER = "spermatheca-logger-id-counter";
 const LOCAL_STORAGE_SPERMATHECA_ROWS = "spermatheca-logger-rows";
+const LOCAL_STORAGE_THEME = "spermatheca-logger-selected-theme";
 
 const ZERO_COLOR = "#FA003F"; // real bright red
-// const ZERO_COLOR = "#EF476F"; // bright pink
 const ONE_COLOR = "#1976D2";
 const TWO_COLOR = "#FBAF00";
 
 function App() {
   const apiRef = useGridApiRef();
+
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    return localStorage.getItem(LOCAL_STORAGE_THEME) || "system";
+  });
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_THEME, selectedTheme);
+  }, [selectedTheme]);
+
+  const systemPrefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const themeName = useMemo(() => {
+    if (selectedTheme === "system") {
+      return systemPrefersDarkMode ? "dark" : "light";
+    } else return selectedTheme;
+  }, [selectedTheme, systemPrefersDarkMode]);
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: themeName,
+        },
+      }),
+    [themeName]
+  );
 
   let [counter, setCounter] = useState(() => {
     // getting stored value
@@ -229,143 +256,183 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <p>🧬 Sᴘᴇʀᴍᴀᴛʜᴇᴄᴀ Cᴏᴜɴᴛᴇʀ 🧬</p>
-      <div className="button-div">
-        <Button
-          style={{
-            margin: "3pt",
-            fontSize: "x-large",
-            fontFamily: "courier",
-            backgroundColor: ZERO_COLOR,
-          }}
-          className="elegance-button"
-          variant="contained"
-          disableElevation
-          onClick={() => addEntry(0)}
-        >
-          0
-        </Button>
-        <Button
-          style={{
-            margin: "3pt",
-            fontSize: "x-large",
-            fontFamily: "courier",
-            backgroundColor: ONE_COLOR,
-          }}
-          className="elegance-button"
-          variant="contained"
-          disableElevation
-          onClick={() => addEntry(1)}
-        >
-          1
-        </Button>
-        <Button
-          style={{
-            margin: "3pt",
-            fontSize: "x-large",
-            fontFamily: "courier",
-            backgroundColor: TWO_COLOR,
-          }}
-          className="elegance-button"
-          variant="contained"
-          disableElevation
-          onClick={() => addEntry(2)}
-        >
-          2
-        </Button>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        <p>🧬 Sᴘᴇʀᴍᴀᴛʜᴇᴄᴀ Cᴏᴜɴᴛᴇʀ 🧬</p>
+        <div className="button-div">
+          <Button
+            style={{
+              margin: "3pt",
+              fontSize: "x-large",
+              fontFamily: "courier",
+              backgroundColor: ZERO_COLOR,
+            }}
+            className="elegance-button"
+            variant="contained"
+            disableElevation
+            onClick={() => addEntry(0)}
+          >
+            0
+          </Button>
+          <Button
+            style={{
+              margin: "3pt",
+              fontSize: "x-large",
+              fontFamily: "courier",
+              backgroundColor: ONE_COLOR,
+            }}
+            className="elegance-button"
+            variant="contained"
+            disableElevation
+            onClick={() => addEntry(1)}
+          >
+            1
+          </Button>
+          <Button
+            style={{
+              margin: "3pt",
+              fontSize: "x-large",
+              fontFamily: "courier",
+              backgroundColor: TWO_COLOR,
+            }}
+            className="elegance-button"
+            variant="contained"
+            disableElevation
+            onClick={() => addEntry(2)}
+          >
+            2
+          </Button>
 
-        <FormControl className="elegance-button" style={{ marginTop: "10pt" }}>
-          <TextField
-            variant="outlined"
-            label="Gene"
-            value={gene}
-            onChange={(e) => setGene(e.target.value)}
-          ></TextField>
-        </FormControl>
-      </div>
+          <FormControl
+            className="elegance-button"
+            style={{ marginTop: "10pt" }}
+          >
+            <TextField
+              variant="outlined"
+              label="Gene"
+              value={gene}
+              onChange={(e) => setGene(e.target.value)}
+            ></TextField>
+          </FormControl>
+        </div>
 
-      <div className="data-grid-div">
-        <DataGrid
-          apiRef={apiRef}
-          rows={rows}
-          columns={columns}
-          slots={{ toolbar: CustomToolbar }}
-          initialState={{
-            sorting: {
-              sortModel: [{ field: "timestamp", sort: "desc" }],
-            },
-          }}
-          sx={{
-            height: "100%",
-            fontFamily: "inherit",
-            fontWeight: "inherit",
-          }}
-          onRowSelectionModelChange={(ids) => {
-            setSelectionModel(ids);
-          }}
-          checkboxSelection
-          disableRowSelectionOnClick
-          autoHeight
-          density="compact"
-          editMode="cell"
-          processRowUpdate={(newRow, oldRow) => {
-            rowMap.set(newRow.id, newRow);
-            setRowMap(new Map(rowMap));
-            return newRow;
-          }}
-        />
-      </div>
-      <div>
-        <Dialog
-          open={alertOpen}
-          onClose={() => setAlertOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
+        <div className="data-grid-div">
+          <DataGrid
+            apiRef={apiRef}
+            rows={rows}
+            columns={columns}
+            slots={{ toolbar: CustomToolbar }}
+            initialState={{
+              sorting: {
+                sortModel: [{ field: "timestamp", sort: "desc" }],
+              },
+            }}
+            sx={{
+              height: "100%",
+              fontFamily: "inherit",
+              fontWeight: "inherit",
+            }}
+            onRowSelectionModelChange={(ids) => {
+              setSelectionModel(ids);
+            }}
+            checkboxSelection
+            disableRowSelectionOnClick
+            autoHeight
+            density="compact"
+            editMode="cell"
+            processRowUpdate={(newRow, oldRow) => {
+              rowMap.set(newRow.id, newRow);
+              setRowMap(new Map(rowMap));
+              return newRow;
+            }}
+          />
+        </div>
+
+        <ButtonGroup
+          size="small"
+          sx={{ marginTop: "0.75em" }}
+          variant="outlined"
         >
-          <DialogTitle id="alert-dialog-title">
-            Delete all {rows.length} rows? 🪱🗑️
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              This will clear all local spermatheca data. This action is
-              irreversible.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={clearAllData} autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
+          <Button
+            sx={{
+              borderTopLeftRadius: "10px",
+              borderBottomLeftRadius: "10px",
+            }}
+            onClick={(e) => setSelectedTheme("light")}
+            disabled={selectedTheme === "light"}
+          >
+            Light
+          </Button>
+          <Button
+            onClick={(e) => setSelectedTheme("system")}
+            disabled={selectedTheme === "system"}
+          >
+            System Theme
+          </Button>
+          <Button
+            onClick={(e) => setSelectedTheme("dark")}
+            sx={{
+              borderTopRightRadius: "10px",
+              borderBottomRightRadius: "10px",
+            }}
+            disabled={selectedTheme === "dark"}
+          >
+            Dark
+          </Button>
+        </ButtonGroup>
+
+        <div>
+          <Dialog
+            open={alertOpen}
+            onClose={() => setAlertOpen(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              Delete all {rows.length} rows? 🪱🗑️
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                This will clear all local spermatheca data. This action is
+                irreversible.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>Cancel</Button>
+              <Button onClick={clearAllData} autoFocus>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+        <div>
+          <Dialog
+            open={deleteSelectionDialogOpen}
+            onClose={() => setDeleteSelectionDialogOpen(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {selectionModel.length === rowMap.size
+                ? `Delete all ${selectionModel.length} rows? 🪱🗑️`
+                : `Delete ${selectionModel.length} rows? 🪱🗑️`}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                This will clear the selected rows. This action is irreversible.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDeleteSelectionDialog}>Cancel</Button>
+              <Button onClick={clearSelectedData} autoFocus>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
       </div>
-      <div>
-        <Dialog
-          open={deleteSelectionDialogOpen}
-          onClose={() => setDeleteSelectionDialogOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {selectionModel.length === rowMap.size
-              ? `Delete all ${selectionModel.length} rows? 🪱🗑️`
-              : `Delete ${selectionModel.length} rows? 🪱🗑️`}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              This will clear the selected rows. This action is irreversible.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDeleteSelectionDialog}>Cancel</Button>
-            <Button onClick={clearSelectedData} autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    </div>
+    </ThemeProvider>
   );
 }
 

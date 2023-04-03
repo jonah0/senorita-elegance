@@ -118,7 +118,7 @@ function App() {
       width: 90,
       editable: true,
       renderCell: ({ value }) => {
-        let color = "white";
+        let color = "black";
         if (value === 0) {
           color = ZERO_COLOR;
         } else if (value === 1) {

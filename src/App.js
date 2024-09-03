@@ -382,6 +382,13 @@ function App() {
           </Button>
         </ButtonGroup>
 
+        <div className="footer">
+          Created by{" "}
+          <a href="https://github.com/jonah0/senorita-elegance">
+            Jonah Stadtmauer
+          </a>
+        </div>
+
         <div>
           <Dialog
             open={alertOpen}
